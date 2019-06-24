@@ -14,6 +14,7 @@ Clone / Download this repository to begin
 
 - Debian 10 ( Buster )
 - Ruby
+- Poppler-utils
 - Tileup Ruby Gem installed accessible in Path i.e $ tileup
     - rmagick
         - imagemagick
