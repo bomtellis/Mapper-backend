@@ -2,9 +2,11 @@ const path = require('path');
 const {execFile} = require('child_process');
 
 const FORMATS = ['png', 'jpeg', 'tiff', 'pdf', 'ps', 'eps', 'svg'];
-const EXEC_OPTS = require('../index').exec_options;
-
-let popplerPath = require('../index').path;
+const EXEC_OPTS = {
+    encoding: 'utf8',
+    maxBuffer: 5000*1024,
+    shell: false
+};
 
 let defaultOptions = {
     format: 'jpeg',
