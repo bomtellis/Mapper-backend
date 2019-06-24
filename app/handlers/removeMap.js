@@ -23,41 +23,47 @@ function removeFolders(mapsDir)
             fs.readdir(inPath, (err, files) => {
                 if(err)
                 {
-                    reject(err)
+                    reject(err);
                 }
 
-                if(files.length == 0)
+                var typeCheck = typeof files;
+                if(typeCheck == "undefined")
                 {
-                    // done
                     console.log('Done cleaning');
                     resolve();
                 }
-
                 else
                 {
-                    let count = 1;
-                    for(const file of files)
+                    if(files.length == 0)
                     {
-                        fs.remove(path.join(inPath, file), err => {
-                            if(err)
-                            {
-                                reject(err);
-                            }
-                        })
-
-
-                        if(count == files.length)
-                        {
-                            resolve();
-                        }
-                        else
-                        {
-                            count++;
-                        }
+                        // done
+                        console.log('Done cleaning');
+                        resolve();
                     }
 
+                    else
+                    {
+                        let count = 1;
+                        for(const file of files)
+                        {
+                            fs.remove(path.join(inPath, file), err => {
+                                if(err)
+                                {
+                                    reject(err);
+                                }
+                            })
 
 
+                            if(count == files.length)
+                            {
+                                resolve();
+                            }
+                            else
+                            {
+                                count++;
+                            }
+                        }
+                    }
                 }
             });
         });
