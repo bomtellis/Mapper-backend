@@ -4,5 +4,8 @@ if (result.error) {
     throw result.error;
 }
 const { parsed: envs } = result;
-console.log(envs);
+if(envs.NODE_ENV == "development")
+{
+    console.log(envs);
+}
 module.exports = envs;
