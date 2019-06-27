@@ -114,7 +114,7 @@ function createPng(tmpFile, baseDir, mapDocument) {
             format: 'png',
             out_dir: baseDir + "/png",
             out_prefix: filePrefix,
-            scale: 8192,
+            scale: 16384,
             page: 1
         }
 
@@ -242,7 +242,7 @@ function tileup(pngFilePath, outputDir) {
         folders.then(function()
         {
             // dir exists
-            let command = "tileup --tile-width=128 --tile-height=128 --auto-zoom 5 --prefix map_tile --in " + pngFilePath + " --output-dir " + outputDir;
+            let command = "tileup --auto-zoom 4 --prefix map_tile --in " + pngFilePath + " --output-dir " + outputDir;
             exec(command, (error, stdout, stderr) => {
                 console.log(stdout);
                 console.log(stderr);
