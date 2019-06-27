@@ -242,7 +242,7 @@ function tileup(pngFilePath, outputDir) {
         folders.then(function()
         {
             // dir exists
-            let command = "tileup --auto-zoom 6 --prefix map_tile --in " + pngFilePath + " --output-dir " + outputDir;
+            let command = "tileup --auto-zoom 4 --prefix map_tile --in " + pngFilePath + " --output-dir " + outputDir;
             exec(command, (error, stdout, stderr) => {
                 console.log(stdout);
                 console.log(stderr);
@@ -258,24 +258,20 @@ function tileup(pngFilePath, outputDir) {
 function renameFolders(mapPath)
 {
     return new Promise(function(resolve, reject) {
-        fs.rename(mapPath + "/15", mapPath + "/0", (err)=> {
-            fs.rename(mapPath + "/16", mapPath + "/1", (err)=> {
-                fs.rename(mapPath + "/17", mapPath + "/2", (err) => {
+        fs.rename(mapPath + "/17", mapPath + "/0", (err) => {
+            if(err) reject(err);
+            fs.rename(mapPath + "/18", mapPath + "/1", (err) => {
+                if(err) reject(err);
+                fs.rename(mapPath + "/19", mapPath + "/2", (err) => {
                     if(err) reject(err);
-                    fs.rename(mapPath + "/18", mapPath + "/3", (err) => {
+                    fs.rename(mapPath + "/20", mapPath + "/3", (err) => {
                         if(err) reject(err);
-                        fs.rename(mapPath + "/19", mapPath + "/4", (err) => {
-                            if(err) reject(err);
-                            fs.rename(mapPath + "/20", mapPath + "/5", (err) => {
-                                if(err) reject(err);
-                                console.log("Renamed folders");
-                                resolve("true");
-                            });
-                        });
+                        console.log("Renamed folders");
+                        resolve("true");
                     });
                 });
-            })
-        })
+            });
+        });
     });
 }
 
