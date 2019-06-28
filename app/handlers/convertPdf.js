@@ -24,8 +24,6 @@ module.exports.convert = async function(file, formData) {
     var cleanUp = await removeTmpFile(tmpFile, baseDir);
     // tile up png
     var tiledUp = await tileup(pngFilePath, mapsDir);
-    //rename renameFolders
-    var foldered = await renameFolders(mapsDir);
     // remove old png
     var pnged = await removePngFile(pngFilePath);
     // update map document with uri
@@ -53,8 +51,6 @@ module.exports.update = async function(file, formData)
         var cleanUp = await removeTmpFile(tmpFile, baseDir);
         // tile up
         var tiledUp = await tileup(pngFilePath, mapsDir);
-        // //rename renameFolders
-        var foldered = await renameFolders(mapsDir);
         // // remove old png
         var pnged = await removePngFile(pngFilePath);
     }
@@ -114,7 +110,7 @@ function createPng(tmpFile, baseDir, mapDocument) {
             format: 'png',
             out_dir: baseDir + "/png",
             out_prefix: filePrefix,
-            scale: 16384,
+            scale: 8192,
             page: 1
         }
 
@@ -242,7 +238,7 @@ function tileup(pngFilePath, outputDir) {
         folders.then(function()
         {
             // dir exists
-            let command = "tileup --auto-zoom 4 --prefix map_tile --in " + pngFilePath + " --output-dir " + outputDir;
+            let command = "tileup --auto-zoom 5 --prefix map_tile --in " + pngFilePath + " --output-dir " + outputDir;
             exec(command, (error, stdout, stderr) => {
                 console.log(stdout);
                 console.log(stderr);
