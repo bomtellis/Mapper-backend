@@ -169,39 +169,45 @@ function cleanUpMaps(baseDir, mapDocument)
                     reject(err)
                 }
 
-                if(files.length == 0)
+                if(typeof files == 'undefined')
                 {
-                    // done
-                    console.log('Done cleaning');
+                    // BUG: if files have dissapeared from disk resolve promise
                     resolve();
                 }
-
                 else
                 {
-                    let count = 1;
-                    for(const file of files)
+                    if(files.length == 0)
                     {
-                        fs.remove(path.join(inPath, file), err => {
-                            if(err)
-                            {
-                                reject(err);
-                            }
-                        })
-
-
-                        if(count == files.length)
-                        {
-                            resolve();
-                        }
-                        else
-                        {
-                            count++;
-                        }
+                        // done
+                        console.log('Done cleaning');
+                        resolve();
                     }
 
+                    else
+                    {
+                        let count = 1;
+                        for(const file of files)
+                        {
+                            fs.remove(path.join(inPath, file), err => {
+                                if(err)
+                                {
+                                    reject(err);
+                                }
+                            })
 
 
+                            if(count == files.length)
+                            {
+                                resolve();
+                            }
+                            else
+                            {
+                                count++;
+                            }
+                        }
+                    }
                 }
+
             });
         });
 }

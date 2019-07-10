@@ -12,9 +12,9 @@ Clone / Download this repository to begin
 
 #### Prerequisites
 
-- Debian 10 ( Buster )
-- Ruby
-- Poppler-utils
+- OS: This is developed to be run on Debian 9/10
+- Ruby version 2.3+
+- Poppler-utils (this can be installed through the poppler.sh bash script)
 - Tileup Ruby Gem installed accessible in Path i.e $ tileup
     - rmagick
         - imagemagick
