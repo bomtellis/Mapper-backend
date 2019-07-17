@@ -1,7 +1,7 @@
 // index.js
 
 // imports
-const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT } = require('./config');
+const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT, SSL_ENABLE, SSL_PRIV_KEY, SSL_PUB_KEY } = require('./config');
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var fs = require('fs');
@@ -11,11 +11,22 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var morgan = require("morgan");
 
-var server = https.createServer({
-    key: fs.readFileSync('./certs/dev/SAN/private.key'),
-    cert: fs.readFileSync('./certs/dev/SAN/private.crt')
-}, app);
-var expressWs = require('express-ws')(app, server);
+// If SSL_ENABLE = true run app on HTTPS
+if(SSL_ENABLE == 'true')
+{
+    console.log('SSL Enabled');
+    var server = https.createServer({
+        key: fs.readFileSync(SSL_PRIV_KEY),
+        cert: fs.readFileSync(SSL_PUB_KEY)
+    }, app);
+
+
+    var expressWs = require('express-ws')(app, server);
+}
+else
+{
+    var expressWs = require('express-ws')(app);
+}
 
 // configure body parser
 app.use(fileUpload({
@@ -46,8 +57,12 @@ app.use('/api', apiRoutes);
 app.use('/maps', express.static('maps'));
 
 // start app
-// app.listen(port);
-server.listen(PORT);
+if(SSL_ENABLE == 'true') {
+    server.listen(PORT);
+} else {
+    app.listen(PORT);
+}
+
 
 // log start up
 console.log('Magic happens on port ' + PORT);
