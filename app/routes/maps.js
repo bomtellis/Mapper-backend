@@ -1,92 +1,92 @@
 var express = require('express');
 var mapRoutes = express.Router();
+const Passport = require('passport');
+const { isAdmin, isEditor, isViewer } = require('../handlers/authenticate');
 
 // import models
 var map = require('../models/map');
+var audit = require('../models/audit');
 
 // import handler
 var pdfHandler = require('../handlers/convertPdf');
 var remover = require('../handlers/removeMap');
 var q = require('../handlers/defer');
 
-/*
- * Test functions for Postman
-*/
-
-mapRoutes.get('/', function(req, res)
+mapRoutes.get('/', isViewer, function(req, res)
 {
+    // console.log(req.session);
     res.json({"message": "Map sub route works!"});
 });
-mapRoutes.get('/populate', function(req, res)
-{
-    // create new map element only once
-    map.find({}, function(err, maps)
-    {
-        if(err)
-        {
-            throw err;
-            res.status(500);
-            res.json(err);
-        }
-        else
-        {
-            if(maps.length == 0)
-            {
-                // no maps - populate
-                var schema = {
-                    mapName: "Ground Floor",
-                    description: "Plant room and Switchrooms on ground floor",
-                    uriPath: "//"
-                }
 
-                map.create(schema, function(err, mapx)
-                {
-                    if(err)
-                    {
-                        throw err;
-                        res.status(500);
-                        res.json(err);
-                    }
-                    else
-                    {
-                        res.status(201);
-                        res.json({"message": "Database populated"});
-                    }
-                });
-            }
-            else
-            {
-                // maps exist
-                res.status(409);
-                res.json({"message": "Database already populated"});
-            }
-        }
-    })
-});
-mapRoutes.get('/depopulate', function(req, res)
-{
-    map.deleteMany({}, function(err, response)
-    {
-        if(err)
-        {
-            throw err;
-            res.status(500);
-            res.json({"message": "Failed to remove all documents"});
-        }
-        else
-        {
-            res.status(410);
-            res.json({"message": "Removed all documents"});
-        }
-    });
-});
-
-/*
- * End Test functions for Postman
-*/
+// mapRoutes.get('/populate', function(req, res)
+// {
+//     // DEVELOPMENT FEATURE
+//     // create new map element only once
+//     map.find({}, function(err, maps)
+//     {
+//         if(err)
+//         {
+//             throw err;
+//             res.status(500);
+//             res.json(err);
+//         }
+//         else
+//         {
+//             if(maps.length == 0)
+//             {
+//                 // no maps - populate
+//                 var schema = {
+//                     mapName: "Ground Floor",
+//                     description: "Plant room and Switchrooms on ground floor",
+//                     uriPath: "//"
+//                 }
+//
+//                 map.create(schema, function(err, mapx)
+//                 {
+//                     if(err)
+//                     {
+//                         throw err;
+//                         res.status(500);
+//                         res.json(err);
+//                     }
+//                     else
+//                     {
+//                         res.status(201);
+//                         res.json({"message": "Database populated"});
+//                     }
+//                 });
+//             }
+//             else
+//             {
+//                 // maps exist
+//                 res.status(409);
+//                 res.json({"message": "Database already populated"});
+//             }
+//         }
+//     })
+// });
+// mapRoutes.get('/depopulate', function(req, res)
+// {
+//     // DEVELOPMENT FEATURE
+//     if()
+//     map.deleteMany({}, function(err, response)
+//     {
+//         if(err)
+//         {
+//             throw err;
+//             res.status(500);
+//             res.json({"message": "Failed to remove all documents"});
+//         }
+//         else
+//         {
+//             res.status(410);
+//             res.json({"message": "Removed all documents"});
+//         }
+//     });
+// });
 
 // Web socket that opens after upload
-mapRoutes.ws('/', function(ws, req)
+mapRoutes.ws('/', isViewer, function(ws, req)
 {
     ws.on('message', function(msg)
     {
@@ -119,7 +119,7 @@ mapRoutes.ws('/', function(ws, req)
 });
 
 // Create a new map
-mapRoutes.post('/', function(req, res){
+mapRoutes.post('/', isEditor, function(req, res){
     if(typeof req.files !== 'undefined' && req.files !== null)
     {
         if (req.files.uploadedFile.mimetype !== "application/pdf") {
@@ -179,7 +179,7 @@ mapRoutes.post('/', function(req, res){
     }
 });
 
-mapRoutes.get('/hide/:id', function(req, res)
+mapRoutes.get('/hide/:id', isEditor, function(req, res)
 {
     let id = req.params.id;
     map.findByIdAndUpdate(id, {$set: {hidden: true}}, function(err, doc)
@@ -199,7 +199,7 @@ mapRoutes.get('/hide/:id', function(req, res)
 })
 
 // Delete map
-mapRoutes.delete('/:id', function(req, res)
+mapRoutes.delete('/:id', isEditor, function(req, res)
 {
     let id = req.params.id;
     remover(id).then(function()
@@ -210,7 +210,7 @@ mapRoutes.delete('/:id', function(req, res)
 });
 
 // Get all maps
-mapRoutes.get('/all', function(req, res)
+mapRoutes.get('/all', isEditor, function(req, res)
 {
     map.find({}).select('-uriPath')
     .exec(function(err, maps)
@@ -229,7 +229,7 @@ mapRoutes.get('/all', function(req, res)
 });
 
 // Get all maps visible
-mapRoutes.get('/visible', function(req, res)
+mapRoutes.get('/visible', isViewer, function(req, res)
 {
     map.find({hidden: false}).select('-uriPath')
     .exec(function(err, maps)
@@ -249,13 +249,13 @@ mapRoutes.get('/visible', function(req, res)
 });
 
 // Get a map
-mapRoutes.get('/:id', function(req, res)
+mapRoutes.get('/:id', isViewer, function(req, res)
 {
     try {
         // check if id matches objectid
         if(req.params.id.match(/^[0-9a-fA-F]{24}$/))
         {
-            // castable
+            // castable id
             map.findById(req.params.id, function(err, aMap)
             {
                 if(err)
@@ -266,6 +266,15 @@ mapRoutes.get('/:id', function(req, res)
                 }
                 else
                 {
+                    if(aMap.audit == true)
+                    {
+                        // log this request;
+
+                        // audit.create({
+                        //
+                        // });
+                    }
+
                     res.json(aMap);
                 }
             })
@@ -273,7 +282,8 @@ mapRoutes.get('/:id', function(req, res)
     }
     catch (e)
     {
-
+        res.status(500);
+        res.json({"message": "Unable to get map data"});
     }
 });
 

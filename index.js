@@ -1,7 +1,7 @@
 // index.js
 
 // imports
-const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT } = require('./config');
+const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT, SESSION_SECRET } = require('./config');
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var fs = require('fs');
@@ -11,9 +11,37 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var morgan = require("morgan");
 
+// Authentication
+var cookieParser = require('cookie-parser');
+var passport = require('passport');
+var session = require('express-session');
+var LocalStrategy = require('passport-local').Strategy;
+var User = require('./app/models/user');
+
+// Express session middlewares
+app.use(cookieParser());
+app.use(session({
+    name: 'mapperSession',
+    secret: SESSION_SECRET,
+    cookie: {
+        secure: true,
+        httpOnly: true,
+        maxAge: 86400000,
+    },
+    saveUninitialized: false,
+    resave: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 var server = https.createServer({
-    key: fs.readFileSync('./certs/dev/SAN/private.key'),
-    cert: fs.readFileSync('./certs/dev/SAN/private.crt')
+    key: fs.readFileSync('./certs/privkey.pem'),
+    cert: fs.readFileSync('./certs/cert.pem')
 }, app);
 var expressWs = require('express-ws')(app, server);
 
@@ -22,8 +50,10 @@ app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: './tmp'
 }));
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+
 mongoose.set('useFindAndModify', false);
 mongoose.connect('mongodb://' + MONGOUSER + ':' + MONGOPASS + '@' + MONGOIP + ':' + MONGOPORT + '/' + MONGODB + '?auth=' + MONGOAUTH, {useNewUrlParser: true});
 app.use(morgan("dev"));
