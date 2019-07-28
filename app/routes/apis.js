@@ -3,6 +3,7 @@ var apiRoutes = express.Router();
 
 // imported child routes
 var userRoutes = require('./user');
+var tokenRoutes = require('./token');
 var mapRoutes = require('./maps');
 var pdfRoutes = require('./pdf');
 var websocketRoutes = require('./websocket');
@@ -16,6 +17,7 @@ var boilerRoutes = require('./boiler');
 */
 
 apiRoutes.use('/users/', userRoutes);
+apiRoutes.use('/token/', tokenRoutes);
 apiRoutes.use('/maps/', mapRoutes);
 apiRoutes.use('/pdf/', pdfRoutes);
 apiRoutes.use('/websocket', websocketRoutes);

@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var passportLocalMongoose = require('passport-local-mongoose');
+var Token = require('./tabletToken');
 
 var UserSchema = new Schema({
     username: {
@@ -18,13 +19,12 @@ var UserSchema = new Schema({
     },
     tokenId: {
         type: String,
-        ref: '',
+        ref: 'TabletToken',
         default: null
     }
 });
 
 UserSchema.plugin(passportLocalMongoose, {
-    populateFields: ['tokenId'],
     limitAttempts: true,
     lastLogin: 'last',
     findByUsername: function(model, queryParams)

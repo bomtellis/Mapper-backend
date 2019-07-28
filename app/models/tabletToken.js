@@ -1,17 +1,13 @@
 var mongoose = require('mongoose');
 var S = mongoose.Schema;
 
-var expiryDate = Date.now
-expiryDate.setHours(expiryDate.getHours() + 24);
-console.log(expiryDate);
-
 var TabletTokenSchema = new S({
     token: {
         type: String
     },
-    expires: {
+    created: {
         type: Date,
-        default: expiryDate
+        default: Date.now
     }
 });
 

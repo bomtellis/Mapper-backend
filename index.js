@@ -1,7 +1,7 @@
 // index.js
 
 // imports
-const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT, SESSION_SECRET } = require('./config');
+const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT, SESSION_SECRET, SSL_ENABLE, SSL_PRIV_KEY, SSL_PUB_KEY } = require('./config');
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var fs = require('fs');
@@ -24,7 +24,7 @@ app.use(session({
     name: 'mapperSession',
     secret: SESSION_SECRET,
     cookie: {
-        secure: true,
+        secure: SSL_ENABLE,
         httpOnly: true,
         maxAge: 86400000,
     },
@@ -39,11 +39,21 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-var server = https.createServer({
-    key: fs.readFileSync('./certs/privkey.pem'),
-    cert: fs.readFileSync('./certs/cert.pem')
-}, app);
-var expressWs = require('express-ws')(app, server);
+// If SSL_ENABLE = true run app on HTTPS
+if(SSL_ENABLE == 'true')
+{
+    console.log('SSL Enabled');
+    var server = https.createServer({
+        key: fs.readFileSync(SSL_PRIV_KEY),
+        cert: fs.readFileSync(SSL_PUB_KEY)
+    }, app);
+
+    var expressWs = require('express-ws')(app, server);
+}
+else
+{
+    var expressWs = require('express-ws')(app);
+}
 
 // configure body parser
 app.use(fileUpload({
@@ -60,12 +70,14 @@ app.use(morgan("dev"));
 
 // CORS
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Request-Headers", "*");
-  res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With,X-HTTP-Method-Override, Content-Type, Accept, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
+    // HACK: CORS on chrome / client
+    var origin = req.headers.origin;
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Request-Headers", "*");
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With,X-HTTP-Method-Override, Content-Type, Accept, tabletToken, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
 });
 
 // Routes
@@ -76,8 +88,12 @@ app.use('/api', apiRoutes);
 app.use('/maps', express.static('maps'));
 
 // start app
-// app.listen(port);
-server.listen(PORT);
+if(SSL_ENABLE == 'true') {
+    server.listen(PORT);
+} else {
+    app.listen(PORT);
+}
+
 
 // log start up
 console.log('Magic happens on port ' + PORT);

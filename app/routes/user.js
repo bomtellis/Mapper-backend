@@ -9,6 +9,35 @@ userRoutes.get('/', function(req, res) {
     });
 });
 
+// cookie validation (yes/no)
+userRoutes.get('/session', function(req, res)
+{
+    if(typeof req.session !== 'undefined' && typeof req.session.passport !== 'undefined')
+    {
+        if(req.session.passport.length !== 0)
+        {
+            res.status(200);
+            res.json({
+                message: "Valid",
+                cookie: req.session.passport
+            });
+        }
+    }
+    else
+    {
+        res.status(401);
+        res.json({
+            message: "Invalid"
+        });
+    }
+});
+
+// tablet token (yes/no)
+userRoutes.get('/validate', function(req, res)
+{
+
+});
+
 // Create account
 userRoutes.post('/signup', (req, res, next) => {
     User.register(new User({
@@ -48,6 +77,7 @@ userRoutes.post('/login', passport.authenticate('local'), function(req, res) {
         res.setHeader('Content-Type', 'application/json');
         res.json({
             success: true,
+            permissionLevel: person.role,
             status: 'You are successfully logged in!'
         });
     })
