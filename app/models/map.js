@@ -11,6 +11,10 @@ var mapSchema = new Schema({
     uriPath: {
         type: String
     },
+    audit: {
+        type: Boolean,
+        default: false
+    },
     hidden: {
         type: Boolean,
         default: false
@@ -22,6 +26,4 @@ var mapSchema = new Schema({
 });
 
 // Validators
-
-
 module.exports = mongoose.model('map', mapSchema);
