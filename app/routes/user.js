@@ -32,12 +32,6 @@ userRoutes.get('/session', function(req, res)
     }
 });
 
-// tablet token (yes/no)
-userRoutes.get('/validate', function(req, res)
-{
-
-});
-
 // Create account
 userRoutes.post('/signup', (req, res, next) => {
     User.register(new User({

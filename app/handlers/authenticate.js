@@ -7,6 +7,7 @@ module.exports.isAdmin = function(req, res, next)
 {
     if(typeof req.session === 'undefined')
     {
+        console.log('10');
         res.status(409);
         res.json({
             message: "Your session has expired"
@@ -16,6 +17,8 @@ module.exports.isAdmin = function(req, res, next)
     {
         if(typeof req.session.passport === 'undefined')
         {
+            console.log(req.session);
+            console.log('20');
             res.status(409);
             res.json({
                 message: "Passport has not got values for your account"
@@ -41,7 +44,7 @@ module.exports.isAdmin = function(req, res, next)
                 {
                     res.status(401);
                     res.json({
-                        message: "You are unauthorised to do this. You must have at least level 1 clearance"
+                        message: "You are unauthorised to do this. You must have at least level 3 clearance"
                     })
                 }
             });
