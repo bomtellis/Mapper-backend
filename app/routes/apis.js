@@ -7,6 +7,7 @@ var tokenRoutes = require('./token');
 var mapRoutes = require('./maps');
 var pdfRoutes = require('./pdf');
 var websocketRoutes = require('./websocket');
+var adminRoutes = require('./admin');
 var genTestRoutes = require('./genTest');
 var boilerRoutes = require('./boiler');
 
@@ -21,6 +22,7 @@ apiRoutes.use('/token/', tokenRoutes);
 apiRoutes.use('/maps/', mapRoutes);
 apiRoutes.use('/pdf/', pdfRoutes);
 apiRoutes.use('/websocket', websocketRoutes);
+apiRoutes.use('/admin', adminRoutes);
 apiRoutes.use('/genTest', genTestRoutes);
 apiRoutes.use('/boilers', boilerRoutes);
 

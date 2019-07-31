@@ -11,6 +11,7 @@ var audit = require('../models/audit');
 var pdfHandler = require('../handlers/convertPdf');
 var remover = require('../handlers/removeMap');
 var q = require('../handlers/defer');
+var cache = require('../handlers/redis');
 
 mapRoutes.get('/', isViewer, function(req, res)
 {
@@ -18,53 +19,86 @@ mapRoutes.get('/', isViewer, function(req, res)
     res.json({"message": "Map sub route works!"});
 });
 
-// mapRoutes.get('/populate', function(req, res)
+// mapRoutes.get('/500', function(req, res)
 // {
-//     // DEVELOPMENT FEATURE
-//     // create new map element only once
-//     map.find({}, function(err, maps)
+//     var documents = [];
+//     for(let i = 0; i < 500; i++)
+//     {
+//         let document = {};
+//         document.mapName = "MapLoading " + i;
+//         document.description = "Lots of maps " + i;
+//         document.hidden = false;
+//         document.audit = false;
+//         documents.push(document);
+//     }
+//
+//     map.create(documents, function(err, result)
 //     {
 //         if(err)
 //         {
 //             throw err;
 //             res.status(500);
-//             res.json(err);
+//             res.json({
+//                 message: "oops"
+//             })
 //         }
 //         else
 //         {
-//             if(maps.length == 0)
-//             {
-//                 // no maps - populate
-//                 var schema = {
-//                     mapName: "Ground Floor",
-//                     description: "Plant room and Switchrooms on ground floor",
-//                     uriPath: "//"
-//                 }
-//
-//                 map.create(schema, function(err, mapx)
-//                 {
-//                     if(err)
-//                     {
-//                         throw err;
-//                         res.status(500);
-//                         res.json(err);
-//                     }
-//                     else
-//                     {
-//                         res.status(201);
-//                         res.json({"message": "Database populated"});
-//                     }
-//                 });
-//             }
-//             else
-//             {
-//                 // maps exist
-//                 res.status(409);
-//                 res.json({"message": "Database already populated"});
-//             }
+//             res.status(200);
+//             res.json({
+//                 message: "Complete"
+//             })
 //         }
 //     })
-// });
+// })
+
+mapRoutes.get('/populate', function(req, res)
+{
+    // DEVELOPMENT FEATURE
+    // create new map element only once
+    map.find({}, function(err, maps)
+    {
+        if(err)
+        {
+            throw err;
+            res.status(500);
+            res.json(err);
+        }
+        else
+        {
+            if(maps.length == 0)
+            {
+                // no maps - populate
+                var schema = {
+                    mapName: "Ground Floor",
+                    description: "Plant room and Switchrooms on ground floor",
+                    uriPath: "//"
+                }
+
+                map.create(schema, function(err, mapx)
+                {
+                    if(err)
+                    {
+                        throw err;
+                        res.status(500);
+                        res.json(err);
+                    }
+                    else
+                    {
+                        res.status(201);
+                        res.json({"message": "Database populated"});
+                    }
+                });
+            }
+            else
+            {
+                // maps exist
+                res.status(409);
+                res.json({"message": "Database already populated"});
+            }
+        }
+    })
+});
 // mapRoutes.get('/depopulate', function(req, res)
 // {
 //     // DEVELOPMENT FEATURE
@@ -229,7 +263,7 @@ mapRoutes.get('/all', isEditor, function(req, res)
 });
 
 // Get all maps visible
-mapRoutes.get('/visible', isViewer, function(req, res)
+mapRoutes.get('/visible', isViewer, cache.route({ expire: 60 }), function(req, res)
 {
     map.find({hidden: false}).select('-uriPath')
     .exec(function(err, maps)

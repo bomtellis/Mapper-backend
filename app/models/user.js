@@ -9,6 +9,14 @@ var UserSchema = new Schema({
         unique: true,
         required: true
     },
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
     active: {
         type: Boolean,
         default: true

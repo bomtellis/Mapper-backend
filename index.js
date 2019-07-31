@@ -1,7 +1,9 @@
 // index.js
 
 // imports
-const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH, PORT, SESSION_SECRET, SSL_ENABLE, SSL_PRIV_KEY, SSL_PUB_KEY } = require('./config');
+const { MONGOIP, MONGODB, MONGOUSER, MONGOPASS, MONGOPORT, MONGOAUTH,
+     PORT, SESSION_SECRET, SSL_ENABLE, SSL_PRIV_KEY, SSL_PUB_KEY,
+ COOKIE_SECURE, COOKIE_HTTP_ONLY} = require('./config');
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var fs = require('fs');
@@ -24,7 +26,7 @@ app.use(session({
     name: 'mapperSession',
     secret: SESSION_SECRET,
     cookie: {
-        secure: SSL_ENABLE,
+        secure: false,
         httpOnly: true,
         maxAge: 86400000,
     },
