@@ -12,10 +12,12 @@ Clone / Download this repository to begin
 
 #### Prerequisites
 
-- OS: This is developed to be run on Debian 9/10
+- OS: Linux (Debian / Ubuntu)
 - Ruby version 2.3+
+- MongoDB Server (nosql server)
 - Poppler-utils (this can be installed through the poppler.sh bash script)
-- Tileup Ruby Gem installed accessible in Path i.e $ tileup
+- Redis Server
+- Mapper-tileup Ruby Gem installed accessible in Path i.e $ tileup
     - rmagick
         - imagemagick
 
