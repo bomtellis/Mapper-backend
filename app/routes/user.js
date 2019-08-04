@@ -2,6 +2,7 @@ var express = require('express');
 var userRoutes = express.Router();
 const User = require('../models/user');
 const passport = require('passport');
+const {NODE_ENV} = require('../../config');
 
 userRoutes.get('/', function(req, res) {
     res.json({
@@ -33,9 +34,28 @@ userRoutes.get('/session', function(req, res)
 });
 
 // Create account
-userRoutes.post('/signup', (req, res, next) => {
+userRoutes.post('/signup',
+(req, res, next) => {
+    if(NODE_ENV == 'development')
+    {
+        next();
+    }
+    else
+    {
+        res.status(500);
+        res.json({
+            error: {
+                name: "SETUP ERROR",
+                message: "Mapper is already configured"
+            }
+        })
+    }
+},
+(req, res, next) => {
     User.register(new User({
-            username: req.body.username
+            username: req.body.username,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName
         }),
         req.body.password, (err, user) => {
             if (err) {
