@@ -244,7 +244,7 @@ mapRoutes.delete('/:id', isEditor, function(req, res)
 });
 
 // Get all maps
-mapRoutes.get('/all', isEditor, function(req, res)
+mapRoutes.get('/all', isEditor, cache.route({ expire: 30 }), function(req, res)
 {
     map.find({}).select('-uriPath')
     .exec(function(err, maps)

@@ -55,7 +55,8 @@ userRoutes.post('/signup',
     User.register(new User({
             username: req.body.username,
             firstName: req.body.firstName,
-            lastName: req.body.lastName
+            lastName: req.body.lastName,
+            role: 3
         }),
         req.body.password, (err, user) => {
             if (err) {
