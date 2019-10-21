@@ -19,39 +19,6 @@ mapRoutes.get('/', isViewer, function(req, res)
     res.json({"message": "Map sub route works!"});
 });
 
-// mapRoutes.get('/500', function(req, res)
-// {
-//     var documents = [];
-//     for(let i = 0; i < 500; i++)
-//     {
-//         let document = {};
-//         document.mapName = "MapLoading " + i;
-//         document.description = "Lots of maps " + i;
-//         document.hidden = false;
-//         document.audit = false;
-//         documents.push(document);
-//     }
-//
-//     map.create(documents, function(err, result)
-//     {
-//         if(err)
-//         {
-//             throw err;
-//             res.status(500);
-//             res.json({
-//                 message: "oops"
-//             })
-//         }
-//         else
-//         {
-//             res.status(200);
-//             res.json({
-//                 message: "Complete"
-//             })
-//         }
-//     })
-// })
-
 mapRoutes.get('/populate', function(req, res)
 {
     // DEVELOPMENT FEATURE
@@ -238,6 +205,7 @@ mapRoutes.delete('/:id', isEditor, function(req, res)
     let id = req.params.id;
     remover(id).then(function()
     {
+        cache.del('/api/maps/all');
         res.status(200);
         res.json({"message": "Removed"});
     });
