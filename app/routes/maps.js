@@ -19,39 +19,6 @@ mapRoutes.get('/', isViewer, function(req, res)
     res.json({"message": "Map sub route works!"});
 });
 
-// mapRoutes.get('/500', function(req, res)
-// {
-//     var documents = [];
-//     for(let i = 0; i < 500; i++)
-//     {
-//         let document = {};
-//         document.mapName = "MapLoading " + i;
-//         document.description = "Lots of maps " + i;
-//         document.hidden = false;
-//         document.audit = false;
-//         documents.push(document);
-//     }
-//
-//     map.create(documents, function(err, result)
-//     {
-//         if(err)
-//         {
-//             throw err;
-//             res.status(500);
-//             res.json({
-//                 message: "oops"
-//             })
-//         }
-//         else
-//         {
-//             res.status(200);
-//             res.json({
-//                 message: "Complete"
-//             })
-//         }
-//     })
-// })
-
 mapRoutes.get('/populate', function(req, res)
 {
     // DEVELOPMENT FEATURE
@@ -211,6 +178,16 @@ mapRoutes.post('/', isEditor, function(req, res){
             }
         });
     }
+
+    cache.del('/api/maps/all', function(err, num)
+    {
+        if(err)
+        {
+            console.log('Unable to delete cache');
+
+        }
+        // console.log("Deleted: " + num);
+    });
 });
 
 mapRoutes.get('/hide/:id', isEditor, function(req, res)
@@ -226,6 +203,15 @@ mapRoutes.get('/hide/:id', isEditor, function(req, res)
         }
         else
         {
+            cache.del('/api/maps/all', function(err, num)
+            {
+                if(err)
+                {
+                    console.log('Unable to delete cache');
+
+                }
+                // console.log("Deleted: " + num);
+            });
             res.status(200);
             res.json({"message": "Map hidden"});
         }
@@ -238,13 +224,22 @@ mapRoutes.delete('/:id', isEditor, function(req, res)
     let id = req.params.id;
     remover(id).then(function()
     {
+        cache.del('/api/maps/all', function(err, num)
+        {
+            if(err)
+            {
+                console.log('Unable to delete cache');
+
+            }
+            // console.log("Deleted: " + num);
+        });
         res.status(200);
         res.json({"message": "Removed"});
     });
 });
 
 // Get all maps
-mapRoutes.get('/all', isEditor, function(req, res)
+mapRoutes.get('/all', isEditor, cache.route({ expire: 30 }), function(req, res)
 {
     map.find({}).select('-uriPath')
     .exec(function(err, maps)
