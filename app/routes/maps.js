@@ -205,7 +205,15 @@ mapRoutes.delete('/:id', isEditor, function(req, res)
     let id = req.params.id;
     remover(id).then(function()
     {
-        cache.del('/api/maps/all');
+        cache.del('/api/maps/all', function(err, num)
+        {
+            if(err)
+            {
+                console.log('Unable to delete cache');
+
+            }
+            console.log("Deleted: " + num);
+        });
         res.status(200);
         res.json({"message": "Removed"});
     });
