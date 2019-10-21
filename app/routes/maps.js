@@ -212,7 +212,7 @@ mapRoutes.delete('/:id', isEditor, function(req, res)
                 console.log('Unable to delete cache');
 
             }
-            console.log("Deleted: " + num);
+            // console.log("Deleted: " + num);
         });
         res.status(200);
         res.json({"message": "Removed"});
