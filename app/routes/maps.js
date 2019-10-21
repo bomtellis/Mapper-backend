@@ -178,6 +178,16 @@ mapRoutes.post('/', isEditor, function(req, res){
             }
         });
     }
+
+    cache.del('/api/maps/all', function(err, num)
+    {
+        if(err)
+        {
+            console.log('Unable to delete cache');
+
+        }
+        // console.log("Deleted: " + num);
+    });
 });
 
 mapRoutes.get('/hide/:id', isEditor, function(req, res)
@@ -193,6 +203,15 @@ mapRoutes.get('/hide/:id', isEditor, function(req, res)
         }
         else
         {
+            cache.del('/api/maps/all', function(err, num)
+            {
+                if(err)
+                {
+                    console.log('Unable to delete cache');
+
+                }
+                // console.log("Deleted: " + num);
+            });
             res.status(200);
             res.json({"message": "Map hidden"});
         }
